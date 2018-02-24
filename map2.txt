@@ -1,0 +1,36 @@
+0000000000000000000000000000000000000000000000000000000000000000
+0                               f                              0
+0                              fxf                             0
+0                              fxf                             0
+0                             fxxxf                            0
+0              f             fxxxxxf             f             0
+0             fxf           fxxxxxxxf           fxf            0
+0            fxxxf         fxxxxxxxxxf         fxxxf           0
+0           fxxxxxf       fxxxxxxxxxxxf       fxxxxxf          0
+0           fxxxxxxfffffffxxxxxxxxxxxxxfffffffxxxxxxf          0
+0           fxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxf          0
+0           fxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxf          0
+0           fxxxxxExxxxxxxxxxxxxxxxxxxxxxxxxExxxxxxxf          0
+0           fxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxf          0
+0           fxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxf          0
+0           fffffffffffffffxxxxxxxxxxxfffffffffffffff          0
+0           fxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxf          0
+0           fxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxf          0
+0           fxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxf          0
+0           fxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxf          0
+0           fxxxxxxxxxxxxxxxfffffffffxxxxxxxxxxxxxxxf          0
+0           fxxxxxxExxxxxxxxxxxxxxxxxxxxxxxxExxxxxxxf          0
+0           fxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxf          0
+0           fxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxf          0
+0           fffffffffffffffxxxxxxxxxxxfffffffffffffff          0
+0           fxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxf          0
+0           fxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxf          0
+0           fxxxxxxxxxxxxxxxxfffffffxxxxxxxxxxxxxxxxf          0
+0           xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx          0
+0           xxxxxxxxxxxxxxxxxxxxExxxxxxxxxxxxxxxxxxxx          0
+0           xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx          0
+l           xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx          r
+fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
+zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
+zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
