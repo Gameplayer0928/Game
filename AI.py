@@ -73,6 +73,9 @@ class moveandseekstate(state):
         self.alltime = 0
         self.currenttime = 0
     
+#     def framestop(self):
+#         self.entity.currentF = 0
+    
     def frameact(self):
         if self.entity.currentF < self.entity.allF:
             self.entity.frame_set(self.entity.currentF)
@@ -81,8 +84,65 @@ class moveandseekstate(state):
             self.entity.currentF = 0
             self.entity.frame_set(self.entity.currentF)
 #            self.entity._dirc(self.entity.goleft)
-        self.entity._dirc(self.entity.goleft)
+#         self.entity._dirc(self.entity.goleft)
+#         print self.entity.currentF
+        self.entity.currentF += 1
+    def move(self):
+        if self.entity.goleft == False:
+            self.entity._valx += 2
+#             self.entity.currentF += 1
+                
+        else:
+            self.entity._valx -= 2
+        
+        self.movetime += 1       
+            
+    def action(self):
+        self.frameact()
+        self.move()
+        
+        
+    def checktochange(self):
+        
+        if self.movetime > self.alltime:
+            return "turn"
+        
+        if self.entity.shootrect.colliderect(self.entity.target.rect):
+            
+#             self.entity.currentF = -1
+            return "shoot"
+      
+    def enteraction(self):
+        self.alltime = 50     
     
+    def exitaction(self):
+        self.movetime = 0
+        self.entity._valx = 0
+
+class followstate(state):
+    def __init__(self,entity):
+        state.__init__(self, "follow")
+        self.entity = entity
+        self.movetime = 0
+        self.alltime = 0
+        self.currenttime = 0
+        self.xr = 0
+        self.yr = 0
+        self.needjump = False
+#        print "follow"
+
+
+    
+    def frameact(self):
+        if self.entity.currentF < self.entity.allF:
+            self.entity.frame_set(self.entity.currentF)
+#            self.entity._dirc(self.entity.goleft)
+        else:
+            self.entity.currentF = 0
+            self.entity.frame_set(self.entity.currentF)
+#            self.entity._dirc(self.entity.goleft)
+#         self.entity._dirc(self.entity.goleft)
+
     def move(self):
         if self.entity.goleft == False:
 #             if self.movetime < self.alltime:
@@ -101,58 +161,41 @@ class moveandseekstate(state):
             self.entity._valx -= 0.1
             self.entity.currentF += 1
         self.movetime += 1
-#        self.currenttime = self.movetime
-        
-    
-    def shoot(self):
-        if randint(1,100) % 23 == 0:
-            self.entity.bulletpool.add(self.entity.bullet)
+        if self.movetime > self.xr * 0.05 and self.needjump:
+            self.entity.jump()
+            self.needjump = False
 #        self.entity._valx = 0
-#        self.entity.frame_set(0)
+#        self.currenttime = self.movetime
+    def calculate(self):
+        self.entity.memory["toloc"] = [self.entity.target.rect.x,self.entity.target.rect.y]
+        self.xr = abs(self.entity.rect.x - self.entity.memory["toloc"][0])
+        self.yr = abs(self.entity.memory["toloc"][1] - self.entity.rect.y)
+        if self.yr > self.entity.rect.height:
+            self.needjump = True        
         
-#        self.movetime = 0
-        
-            
     def action(self):
         self.move()
         self.frameact()
-#        self.currenttime = self.movetime
-        
-    def checktochange(self):
-        
-        if self.movetime > self.alltime:
-            return "turn"
-        
-#        if self.entity.shootrect != None:
-        if self.entity.shootrect.colliderect(self.entity.target.rect):
-            self.entity.currentF = -1
-            return "shoot"
-#            self.movetime = self.currenttime
-#            self.shoot()
-#                self.entity.frame_set(0)
-#                print "finded and shoot"
-#                return "shoot"
+#         if self.xr > 100 or self.yr > 100:
+#             self.entity.memory["toloc"] = []
 
+    
+    def checktochange(self):
+        if self.movetime > self.xr * 0.1:
+            return "shoot"
         
     def enteraction(self):
-#        self.entity.goleft = randint(1,100) % 2
-        
-#         self.alltime = randint(10,50)
-        self.alltime = 50
-        
-        
+        self.calculate()
     
     def exitaction(self):
-#        if self.movetime == self.alltime:
-        self.movetime = 0
-        self.entity._valx = 0
+        pass
 
 class turnstate(state):
     def __init__(self,entity):
         state.__init__(self, "turn")
         self.entity = entity
         self.pre = None
-    
+
     def action(self):
         self.entity.goleft = not(self.entity.goleft)
 #        self.entity._dirc(self.entity.goleft)
@@ -162,6 +205,7 @@ class turnstate(state):
             return "moveandseek"
         
     def enteraction(self):
+#         self.entity.jump()
         self.pre = self.entity.goleft
 #        self.entity.frame_set(0)
         
@@ -173,15 +217,16 @@ class shootstate(state):
         state.__init__(self, "shoot")
         self.entity = entity
 #        print "shoot init"
-    
+    def framestop(self):
+        self.entity.currentF = 0
     def shoot(self):
         self.entity.bulletpool.add(self.entity.bullet)
-#        self.entity.frame_set(0)
+#         self.entity.frame_set(0)
     
     def action(self):
-#        self.entity.frame_set(0)
-        if randint(1,100) % 23 == 0:
-            
+#        self.entity.currentF -= 1
+        self.framestop()
+        if randint(1,100) % 20 == 0:   
             self.shoot()
         
     def checktochange(self):
@@ -189,6 +234,7 @@ class shootstate(state):
             return "moveandseek"
         
     def enteraction(self):
+        self.framestop()
         pass
 #        if self.entity.bulletpool.sprites() == []:
 #            self.entity.frame_set(0)

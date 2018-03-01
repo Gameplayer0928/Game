@@ -27,9 +27,10 @@ import pygame
 
 
 SCREEN_SIZE = (1280,720)
-CAPTION = "Black Face - the shadow of Big Head - alpha 0.0.1"
+CAPTION = "Black Face - the shadow of Big Head - alpha 0.0.2"
 
 scr = pygame.display.set_mode(SCREEN_SIZE,0,32)
 pygame.init()
+clock = pygame.time.Clock()
 
 ICON = pygame.image.load(".\\icon.jpg").convert_alpha()

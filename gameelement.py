@@ -31,6 +31,7 @@ import AI
 
 medimage = pygame.image.load(".\\medicine.png").convert_alpha()
 amimage = pygame.image.load(".\\ammo.png").convert_alpha()
+hitwave = pygame.image.load(".\\hitwavef1_f3.png").convert_alpha()
 
 class Block(pygame.sprite.Sprite):
     def __init__(self,image):
@@ -113,7 +114,11 @@ class GameEntity(pygame.sprite.Sprite):
         self.collidestatepool = {self.rect.top:0,self.rect.bottom:0,self.rect.left:0,self.rect.right:0}
         self.collideblockpool = []
         
-        self.frametimebuff = 0
+        self.shootdelay = 0
+        self.shootlock = False
+        
+        self.meleedelay = 0
+        self.meleelock = False
         
     def set_default_loc(self,fx,fy,goleft = False,pix=1):
         self.rect.x = fx
@@ -122,7 +127,7 @@ class GameEntity(pygame.sprite.Sprite):
         
     def frame_set(self,s = 0):
         currentRect = pygame.Rect(self.frameW * s,0,self.frameW,self.frameH)
-        self.image = self.main_image.subsurface(currentRect)
+        self.image = pygame.transform.flip(self.main_image.subsurface(currentRect),self.goleft,0)
     
     def _dirc(self,s):
         self.image = pygame.transform.flip(self.image,s,0)
@@ -131,18 +136,9 @@ class GameEntity(pygame.sprite.Sprite):
         self._valx = 0
         self._valy = 0
     
-    def dokill(self):
-
-        self.image = pygame.transform.rotate(self.image,90)
-#        #      print "killing"
-#         st = 0
-#         for z in range(100000):
-#             st += z
-#             if st > 100000:
-#                 self.kill()
-    
     def update(self):
         keys = pygame.key.get_pressed()
+        
         if keys[pygame.K_a]:
             self._valx -= 1
             self.goleft = True
@@ -152,11 +148,9 @@ class GameEntity(pygame.sprite.Sprite):
         if keys[pygame.K_d]:
             self._valx += 1
             self.goleft = False
-            if self.rect.x > SCREEN_SIZE[0]-self.rect.width:
+            if self.rect.x > SCREEN_SIZE[0] - self.rect.width:
                 self._valx = 0
         self._valx *= 0.8
-        
-        
         
         if keys[pygame.K_SPACE] and self.onfloor == True:
             self._valy -= 11
@@ -164,112 +158,58 @@ class GameEntity(pygame.sprite.Sprite):
         
         self._valy += 0.5
         
-        
         self.rect.move_ip((self._valx,self._valy))
-        
+              
         if keys[pygame.K_k] and self.status["ammo"] > 0:
-            bt = Bullet(self.rect.x,self.rect.y,self.goleft,self.bulletimage,25,8)
-            if self.bulletpool.sprites() == []:
-                self.bulletpool.add(bt)
-                self.status["ammo"] -= 1
-#         self.rect.x += self._valx
-#         self.rect.y += self._valy
-#         if self.jumping == True:
-#             oldrect = self.rect
-#             self.rect.bottom = oldrect.top
+            self.shootdelay += 1
+            if self.shootdelay < 20:
+                if self.shootlock == False:
+                    self.shootlock = True
+                    bt = Bullet(self.rect.x,self.rect.y,self.goleft,self.bulletimage,25,8)
+                    self.bulletpool.add(bt)
+                    self.status["ammo"] -= 1
+            else:
+                self.shootlock = False
+                self.shootdelay = 0
+        else:
+            self.shootdelay = 0
+            self.shootlock = False
         
-#         else:
-#             self._valx += 0.0
-#        self.rect.x = self._valx
-#        self.rect.move_ip((self._valx,self._valy))
+
+        
+        if keys[pygame.K_l]:
+            self.meleedelay += 1
+            if self.meleedelay < 20:
+                if self.meleelock == False:
+                    self.meleelock = True
+                    self.frame_set(3)
+                    hw = HitWave(self.rect.x,self.rect.y,self.rect.width,self.goleft)
+                    self.bulletpool.add(hw)
+            else:
+                self.meleelock = False
+                self.meleedelay = 0
+        else:
+            self.meleelock = False
+            self.meleedelay = 0
         
         if keys[pygame.K_d] or keys[pygame.K_a]:
-            self.currentF += 1
-            if self.currentF < self.allF:
+            
+            if self.currentF < self.allF - 1:
                 self.frame_set(self.currentF)
-                self._dirc(self.goleft)
             else:
                 self.currentF = 0
                 self.frame_set(self.currentF)
-                self._dirc(self.goleft)
-        else:
-            self.frame_set(0)
-            self._dirc(self.goleft)
+            self.currentF += 1
+#         else:
+#             self.frame_set(0)
         
 #        collideblockpool = []
+#        print "player " + str(self.currentF)
         for block in self.mapblock:
 #             blockedgestorge={"top":0,"bottom":0,"left":0,"right":0}
             if block.rect.colliderect(self.rect):
                 
-#                 if block not in collideblockpool:
-#                     collideblockpool.append(block)
-#                     bkel = []
-#                     for bk in collideblockpool:
-#                         bkel.append(collide_edge(self.rect,bk.rect))
-#                     for i in range(len(bkel)):
-#                         
-#                         if bkel[i][0]:
-#                             self._valy = 0
-#                             self.rect.top = collideblockpool[i].rect.bottom
-#                             #      print "top,",i
-#                         elif bkel[i][1]:
-#                             self._valy = 0
-#                             self.rect.bottom = collideblockpool[i].rect.top
-#                             self.onfloor = True
-#                             #      print "bottom,",i
-#                         elif bkel[i][2]:
-#                             self._valx = 0
-#                             self.rect.right = collideblockpool[i].rect.left
-#                             #      print "right,",i
-#                         elif bkel[i][3]:
-#                             self._valx = 0
-#                             self.rect.left = collideblockpool[i].rect.right
-#                             #      print "left,",i
 
-#                 top,bottom,left,right = collide_edge(self.rect,block.rect)
-#             
-#             collideblockpool.append(block)
-#                 #      print self.collideblockpool
-#                 for i in self.collideblockpool:
-#                     #      print i
-#                     top,bottom,left,right = collide_edge(self.rect,i.rect)
-#                     #      print (top,bottom,left,right)
-#                     if top is True:
-#                         blockedgestorge.append(0)
-#                     if bottom is True:
-#                         blockedgestorge.append(1)
-#                     if left is True:
-#                         blockedgestorge.append(2)
-#                     if right is True:
-#                         blockedgestorge.append(3)
-#                     #      print blockedgestorge
-#                 for z in range(len(blockedgestorge)):
-                                        
-#                 self.collidestatepool[0] = top
-#                 self.collidestatepool[1] = bottom
-#                 self.collidestatepool[2] = left
-#                 self.collidestatepool[3] = right
-   
-#                     if blockedgestorge[z] == 0:
-#                         self._valy = 0
-#                         self.rect.top = self.collideblockpool[z].rect.bottom
-#                         #      print "top"
-#                     elif blockedgestorge[z] == 1:
-#                         self._valy = 0
-#                         self.rect.bottom = self.collideblockpool[z].rect.top
-#                         self.onfloor = True
-#                         #      print "bottom"
-#                     elif blockedgestorge[z] == 2:
-#                         self._valx = 0
-#                         self.rect.right = self.collideblockpool[z].rect.left
-#                         #      print "right"
-#                     elif blockedgestorge[z] == 3:
-#                         self._valx = 0
-#                         self.rect.left = self.collideblockpool[z].rect.right
-#                         #      print "left"
-#             else:
-#                 for i in self.collidestatepool:
-#                     self.collidestatepool[i] = False
                     
                     top,bottom,left,right = collide_edge(self.rect,block.rect)
 #                     #      print (top,bottom,left,right)
@@ -343,8 +283,6 @@ class LineRectCount(): #pygame.sprite.Sprite
         sur.fill(self.backc,(self.who.rect.x + self.shift[0],self.who.rect.y + self.shift[1],self.who.rect.width,self.rectH))
         sur.fill(self.countc,(self.who.rect.x + self.shift[0],self.who.rect.y + self.shift[1], self.alllife, self.rectH))
  
-        
-        
 class BossEntity(GameEntity):
     def __init__(self,image,frameW,frameH,allF,bulletimage):
         GameEntity.__init__(self,image,frameW,frameH,allF,bulletimage)
@@ -386,15 +324,19 @@ class EnemyEntity(GameEntity):
         SHOOTSTATE = AI.shootstate(self)
         MOVEANDSEEK = AI.moveandseekstate(self)
         TURN = AI.turnstate(self)
+        FOLLOW = AI.followstate(self)
         
         self.lrc = LineRectCount(self,MAX = 3.0,shift = [0,-10])
         
         self.brain.addstate(SHOOTSTATE)
         self.brain.addstate(MOVEANDSEEK)
-        
         self.brain.addstate(TURN)
+        
+        self.brain.addstate(FOLLOW)
+        
         self.bullet = Bullet(self.rect.x,self.rect.y,self.goleft,self.bulletimage,32,22)
         self.brain.setstate("moveandseek")
+        self.memory = {"toloc":[]}
         self.shootrect = None
         
         self.target = None
@@ -421,11 +363,15 @@ class EnemyEntity(GameEntity):
         item.mapblock = self.mapblock
         self.giveitempool.add(item)
     
+    def jump(self):
+        self._valy -= 12
+    
     def update(self):
         self.detective_set()
         self.brain.think()
         self._valy += 0.5
         self.rect.move_ip((self._valx,self._valy))
+        self._valx = 0
         
         for block in self.mapblock:
 #             blockedgestorge={"top":0,"bottom":0,"left":0,"right":0}
@@ -439,7 +385,7 @@ class EnemyEntity(GameEntity):
                 elif bottom:
                     self._valy = 0
                     self.rect.bottom = block.rect.top
-                    self.onfloor = True
+#                     self.onfloor = True
 #                         #      print "bottom"
                 elif right:
                     self._valx = 0
@@ -452,16 +398,13 @@ class EnemyEntity(GameEntity):
                 else:
                     pass
         self.bullet = Bullet(self.rect.x,self.rect.y,self.goleft,self.bulletimage,32,22)
-        self.bullet.speed = 0.1
+        self.bullet.speed = 4
         pygame.sprite.groupcollide(self.bulletpool, self.mapblock, 1, 0)
         
 #        #      print self.lrc.dead()
         if self.lrc.dead():
             self.give_item()
             self.kill()
-        
-        
-
                   
 class Bullet(pygame.sprite.Sprite):
     def __init__(self,xp,yp,shootD,image,shiftW,shiftH):
@@ -469,11 +412,10 @@ class Bullet(pygame.sprite.Sprite):
         self.image = image
         self.rect = self.image.get_rect()
         self.shootD = shootD
-        self.speed = 1.0
+        self.speed = 6.0
         self._valx = 0
         self._valy = 0
         
-
         if self.shootD == 0:
             self.shiftW = shiftW
             self.rect.x = xp + self.shiftW
@@ -491,15 +433,60 @@ class Bullet(pygame.sprite.Sprite):
             self._valx -= self.speed
         
         self.rect.move_ip((self._valx ,self._valy))
+        self._valx = 0
         
         if self.rect.x < 0 or self.rect.x > SCREEN_SIZE[0] or self.rect.y < 0 or self.rect.y > SCREEN_SIZE[1]:
             self.kill()
 
+class HitWave(pygame.sprite.Sprite):
+    def __init__(self,xp,yp,width,shootD,image = hitwave,frameW = 20,frameH = 50,allF = 3):
+        pygame.sprite.Sprite.__init__(self)
+        self.main_image = image
+        
+        self.frameW = frameW
+        self.frameH = frameH
+        
+        self.image = self.main_image.subsurface(pygame.Rect(0,0,self.frameW,self.frameH))
+        self.rect = pygame.Rect(0,0,self.frameW,self.frameH)
+        self.shootD = shootD
+        self.currentF = 0
+        self.allF = allF
+        
+        self.xp = xp         #from user rect x
+        self.yp = yp
+        self.width = width   #from user rect width
+
+#         self._dirc(self.shootD)
+        if self.shootD == True:
+            self.rect.x = self.xp - self.frameW
+            
+        if self.shootD == False:
+            self.rect.x = self.xp + self.width
+
+        self.rect.y = self.yp
+#         print "hitwave : ",self.shootD
+    
+    def frame_set(self,s = 0):
+        currentRect = pygame.Rect(self.frameW * s,0,self.frameW,self.frameH)
+        self.image = pygame.transform.flip(self.main_image.subsurface(currentRect),self.shootD,0)
+        
+ 
+        
+    def update(self):
+#        self._dirc(self.shootD)
+        if self.allF > self.currentF:
+#            self._dirc(self.shootD)            
+            self.frame_set(self.currentF)
+            self.currentF += 1
+        else:
+#             self.currentF = 0
+            self.kill()
+                
 class Bullet2(Bullet):
     def __init__(self,xp,yp,shootD,image,shiftW,shiftH):
         Bullet.__init__(self, xp, yp, shootD, image, shiftW, shiftH)
         
-        self.speed = 0.05
+        self.speed = 5.0
         self.count = 0
         self.rcount = 0
         
@@ -514,28 +501,9 @@ class Bullet2(Bullet):
             self.count+=1
             self.rcount = 0
         self.rcount += 1
-#         if random.randint(1,2) == 2:
-#             self.up = True
-#         else:
-#             self.up = False
-#       
-#         if self.upcount < 10 and self.up:
-#             self._valy += 0.05
-#             self.upcount += 1
-#         else:
-#             self.upcount = 0
-# #            self._valy = 0
-#             self.up = False
-#         
-#         if self.downcount < 10 and self.up == False:
-#             self._valy -= 0.05
-#             self.downcount += 1
-#         else:
-#             self.downcount = 0
-# #            self._valy = 0
-#             self.up = True
         
         self.rect.move_ip((self._valx ,self._valy))
+        self._valx = 0
         
         if self.rect.x < 0 or self.rect.x > SCREEN_SIZE[0] or self.rect.y < 0 or self.rect.y > SCREEN_SIZE[1]:
             self.kill()
@@ -563,7 +531,6 @@ class StateBoard():
             self.todraw.blit(self.text2sur,(self.xp+10,self.yp+20,80,20))
             self.todraw.blit(self.text3sur,(self.xp+10,self.yp+40,80,20))
 
-
 def collide_edge(a,b):
     lt,rt,tp,bm = False,False,False,False
     Rect = pygame.Rect
@@ -573,17 +540,6 @@ def collide_edge(a,b):
     top = Rect(a.left+1,a.top,a.width-2,1)
     bottom = Rect(a.left+1,a.bottom,a.width-2,1)
 
-#     left = Rect(a.left,a.top+2,1,a.height-4)
-#     right = Rect(a.right,a.top+2,1,a.height-4)
-#     top = Rect(a.left+2,a.top,a.width-4,1)
-#     bottom = Rect(a.left+2,a.bottom,a.width-4,1)
-
-    
-#     left = Rect(a.left,a.top,1,a.height)
-#     right = Rect(a.right,a.top,1,a.height)
-#     top = Rect(a.left,a.top,a.width,1)
-#     bottom = Rect(a.left,a.bottom,a.width,1)
-    
     
     if left.colliderect(b):
         lt = True

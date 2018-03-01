@@ -59,13 +59,6 @@ def buildMap(image,ls,x,y):
 #       items = None
     return Group
 
-# def set_location(ls,xp,yp):
-#     lsp = ls
-#     x,y = 0,0
-#     for i in lsp:
-#         x = i[0]*xp - xp
-#         y = i[1]*yp - yp
-#     return [x,y]
 
 def set_location(ls,xp,yp):
     x = ls[0]*xp - xp
@@ -188,12 +181,14 @@ class MapState():
         self.blockbackgroup.draw(self.screen)
 
         self.GEgroup.update()
-        self.GEgroup.draw(self.screen)
+        
         
         self.GE.bulletpool.update()
         self.enemygroup.update()
                 
         for i in self.enemygroup:
+            i.bulletpool.update()
+            i.bulletpool.draw(self.screen)
             i.lrc.rander(self.screen)
             if pygame.sprite.spritecollide(self.GE,i.bulletpool,1):
                 self.GE.status["life"] -= 1
@@ -214,16 +209,20 @@ class MapState():
                     self.GE.status["ammo"] += i.effect["ammo+"]
          
 #            #      print "hit"
-        self.itemgroup.draw(self.screen)
         
-        self.GE.bulletpool.draw(self.screen)
         self.blockgroup.draw(self.screen)
         self.enemygroup.draw(self.screen)
+
+        self.itemgroup.draw(self.screen)
+        self.GEgroup.draw(self.screen)
+        self.GE.bulletpool.draw(self.screen)
         
-        for i in self.enemygroup:
-            i.bulletpool.update()
-            i.bulletpool.draw(self.screen)
-#            #      print "in group"
+        
+        
+        
+        
+        
+        
         
         if pygame.sprite.collide_circle(self.GE,self.mapLp):
 #            #      print "pre act"

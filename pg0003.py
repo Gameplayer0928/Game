@@ -36,7 +36,7 @@ print """W S A D key to move\n
        SPACE key to jump\n
        K key to shoot\n
        TAB key to show status\n
-       
+       L  key to Melee Attack\n
        [shoot enemy to collect ammo to kill the Big Head!!!]
        """
 
@@ -49,7 +49,7 @@ pygame.display.set_icon(ICON)
 
 background = pygame.surface.Surface(SCREEN_SIZE)
 
-playerimage = pygame.image.load(".\\playerf1_f3.png").convert_alpha()
+playerimage = pygame.image.load(".\\playerf1_f4.png").convert_alpha()
 
 bulletimage = pygame.image.load(".\\ball2.png").convert_alpha()
 
@@ -59,7 +59,7 @@ bulletimage = pygame.image.load(".\\ball2.png").convert_alpha()
 
 # ab.main_image = playerimageddddddddd
 
-ab = GameEntity(playerimage,36,50,3,bulletimage)
+ab = GameEntity(playerimage,36,50,4,bulletimage)
 
 # boss.set_default_loc(900, 300, False)
 
@@ -82,22 +82,15 @@ mlfile.close()
 
 mapcurrent = MapState(maplink,ab,scr)
 
-mapcurrent.mapNumber = 0                                
+mapcurrent.mapNumber = 0                               
 # ab.mapblock = blockgroup
-
-clock = pygame.time.Clock()
 
 tabhold = False
 
 while True:
 #    absb = StateBoard(ab,scr)
     clock.tick(60)
-#    scr.fill((255,255,255),(0,0,SCREEN_SIZE[0],SCREEN_SIZE[1]))
-#    scr.blit(backeve,(0,0))
-   # backeve.blit(scr,(0,0))
-#     blockbackgroup.draw(scr)
-#    pg.update()
-#    ab.bulletpool.update()
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
@@ -110,10 +103,7 @@ while True:
             if event.key == pygame.K_TAB:
                 tabhold = False
      
-#             if event.key == pygame.K_d:
-#                 ab.frame_set(2)
-    
-#    pg.clear(scr, background)ddd
+
     mapcurrent.running()
     
     if tabhold:
