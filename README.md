@@ -1,10 +1,11 @@
 # Game
 just game
 
-W S A D key to move\n
-       SPACE key to jump\n
-       K key to shoot\n
-       TAB key to show status\n
+W S A D key to move
+SPACE key to jump
+K key to shoot
+TAB key to show status
+L key to Melee Attack
        
        
        [shoot enemy to collect ammo to kill the Big Head!!!
