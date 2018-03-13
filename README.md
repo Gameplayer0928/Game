@@ -12,6 +12,3 @@ L key to Melee Attack
 
 edit,add or sub map().txt, add in maplink.txt to create game map.
 
-
-Release
-link：https://pan.baidu.com/s/1i6BiX6l    password：b76r
