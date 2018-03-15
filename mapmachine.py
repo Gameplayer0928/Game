@@ -134,6 +134,7 @@ class MapState():
         self.enemybulletimage = pygame.image.load(".\\ball3.png").convert_alpha()
         self.enemygroup = pygame.sprite.Group()
         
+        
         self.enemy_set()
         
     def enemy_set(self):
@@ -171,6 +172,8 @@ class MapState():
         self.blockgroup.empty()
         self.blockbackgroup.empty()
         self.itemgroup.empty()
+        self.GE.bulletpool.empty()
+#        del(self.GEsb)
         
     def running(self):
         self.GEsb = StateBoard(self.GE,self.screen)
@@ -216,13 +219,6 @@ class MapState():
         self.itemgroup.draw(self.screen)
         self.GEgroup.draw(self.screen)
         self.GE.bulletpool.draw(self.screen)
-        
-        
-        
-        
-        
-        
-        
         
         if pygame.sprite.collide_circle(self.GE,self.mapLp):
 #            #      print "pre act"

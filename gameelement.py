@@ -28,6 +28,7 @@ from gameconfig import *
 from random import randint
 import math
 import AI
+from win32inetcon import AUTO_PROXY_FLAG_DETECTION_RUN
 
 medimage = pygame.image.load(".\\medicine.png").convert_alpha()
 amimage = pygame.image.load(".\\ammo.png").convert_alpha()
@@ -335,20 +336,26 @@ class EnemyEntity(GameEntity):
         self.brain.addstate(FOLLOW)
         
         self.bullet = Bullet(self.rect.x,self.rect.y,self.goleft,self.bulletimage,32,22)
-        self.brain.setstate("moveandseek")
+        
         self.memory = {"toloc":[]}
         self.shootrect = None
+        self.uprect = None
         
         self.target = None
         
         self.giveitempool = None
+        self.detective_set()
+        self.brain.setstate("moveandseek")
+        
+        self.jumping = False
         
     def detective_set(self):
         if self.target != None:
             if self.goleft == False:
-                self.shootrect = pygame.Rect(self.rect.x,self.rect.y,SCREEN_SIZE[0]/2,40)
+                self.shootrect = pygame.Rect(self.rect.x,self.rect.y,SCREEN_SIZE[0]/2+self.rect.x,10)
             else:
-                self.shootrect = pygame.Rect(self.rect.x-SCREEN_SIZE[0]/2,self.rect.y,SCREEN_SIZE[0]/2,40)
+                self.shootrect = pygame.Rect(self.rect.x-SCREEN_SIZE[0]/2,self.rect.y,SCREEN_SIZE[0]/2,10)
+            self.uprect = pygame.Rect(self.rect.x,self.rect.y - 15,self.rect.width,self.rect.y+15)
     
 #     def set_dead_pos(self):
 #         self.deadpos=[self.rect.x,self.rect.y]
@@ -363,8 +370,77 @@ class EnemyEntity(GameEntity):
         item.mapblock = self.mapblock
         self.giveitempool.add(item)
     
+    def frame_act(self):
+        if self.currentF < self.allF:
+            self.frame_set(self.currentF)
+        else:
+            self.currentF = 0
+            self.frame_set(self.currentF)
+        self.currentF += 1
+    
+    def frame_stop(self):
+        self.currentF = 0
+    
+    def detection_block(self,detef,axis = 'x'):
+        pe = []
+        for i in self.mapblock:
+            if detef.colliderect(i.rect):
+#                print "block:",i.rect
+                if axis == 'x':
+                    pe.append(abs(self.rect.x - i.rect.x))
+                if axis == 'y':
+                    pe.append(abs(self.rect.y - i.rect.y))
+#        print len(pe)
+        if pe != []:
+            pe.sort()
+            return pe[0]
+        else:
+            return 0
+    
+#     def detection_up_block(self):
+#         pe = []
+#         for i in self.mapblock:
+#             if self.shootrect.colliderect(i.rect):
+# #                print "block:",i.rect
+#                 pe.append(abs(self.rect.x - i.rect.x))
+# #        print len(pe)
+#         if pe != []:
+#             pe.sort()
+#             return pe[0]
+#         else:
+#             return 0
+    
+    def detection(self,detef,axis = 'x'):
+        if detef.colliderect(self.target.rect):
+            if axis == 'x':
+                return abs(self.rect.x - self.target.rect.x)
+            if axis == 'y':
+                return abs(self.rect.y - self.target.rect.y)
+        else:
+            return 0
+    
+    def check_to_jump(self):    
+        re = self.detection_block(self.uprect, 'y')
+        if re < 15:
+            return False
+        else:
+            return True
+        
+    def check_to_shoot(self):
+        db = self.detection_block(self.shootrect,'x')
+        dt = self.detection(self.shootrect,'x')
+        if db:
+            if db > dt and dt != 0:
+                return 1
+        else:
+            if dt:
+                return 1
+        return 0
+    
+    
     def jump(self):
         self._valy -= 12
+        self.jumping = True
     
     def update(self):
         self.detective_set()

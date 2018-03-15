@@ -27,7 +27,7 @@ import pygame
 
 
 SCREEN_SIZE = (1280,720)
-CAPTION = "Black Face - the shadow of Big Head - alpha 0.0.2"
+CAPTION = "Black Face - the shadow of Big Head - alpha 0.0.3"
 
 scr = pygame.display.set_mode(SCREEN_SIZE,0,32)
 pygame.init()

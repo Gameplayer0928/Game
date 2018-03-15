@@ -23,6 +23,7 @@ Created on 2018��2��17��
 #
 
 '''
+# import pygame
 from random import randint
 
 class state():
@@ -70,27 +71,16 @@ class moveandseekstate(state):
         state.__init__(self, "moveandseek")
         self.entity = entity
         self.movetime = 0
-        self.alltime = 0
+        self.alltime = 50
         self.currenttime = 0
-    
+#         self.deteblock = False
 #     def framestop(self):
 #         self.entity.currentF = 0
     
-    def frameact(self):
-        if self.entity.currentF < self.entity.allF:
-            self.entity.frame_set(self.entity.currentF)
-#            self.entity._dirc(self.entity.goleft)
-        else:
-            self.entity.currentF = 0
-            self.entity.frame_set(self.entity.currentF)
-#            self.entity._dirc(self.entity.goleft)
-#         self.entity._dirc(self.entity.goleft)
-#         print self.entity.currentF
-        self.entity.currentF += 1
+
     def move(self):
         if self.entity.goleft == False:
             self.entity._valx += 2
-#             self.entity.currentF += 1
                 
         else:
             self.entity._valx -= 2
@@ -98,22 +88,27 @@ class moveandseekstate(state):
         self.movetime += 1       
             
     def action(self):
-        self.frameact()
+        self.entity.frame_act()
         self.move()
-        
-        
+    
+
+       
     def checktochange(self):
+        if self.entity.check_to_shoot():
+            return "shoot"
         
         if self.movetime > self.alltime:
             return "turn"
         
-        if self.entity.shootrect.colliderect(self.entity.target.rect):
-            
+
+#             if self.detection() != 0:
+#                 return "shoot"
+#            
 #             self.entity.currentF = -1
-            return "shoot"
+            
       
     def enteraction(self):
-        self.alltime = 50     
+        pass
     
     def exitaction(self):
         self.movetime = 0
@@ -124,48 +119,30 @@ class followstate(state):
         state.__init__(self, "follow")
         self.entity = entity
         self.movetime = 0
-        self.alltime = 0
+        self.alltime = 100
         self.currenttime = 0
         self.xr = 0
         self.yr = 0
         self.needjump = False
 #        print "follow"
-
-
     
-    def frameact(self):
-        if self.entity.currentF < self.entity.allF:
-            self.entity.frame_set(self.entity.currentF)
-#            self.entity._dirc(self.entity.goleft)
-        else:
-            self.entity.currentF = 0
-            self.entity.frame_set(self.entity.currentF)
-#            self.entity._dirc(self.entity.goleft)
-#         self.entity._dirc(self.entity.goleft)
-
+    
     def move(self):
+        self.entity.memory["toloc"] = [self.entity.target.rect.x,self.entity.target.rect.y]
         if self.entity.goleft == False:
-#             if self.movetime < self.alltime:
-#                 self.entity._valx += 0.1
-#                 self.movetime += 1
-#                 self.entity.currentF += 1
-            self.entity._valx += 0.1
-            self.entity.currentF += 1
-                
+            self.entity._valx += 2             
         else:
-#         if randint(1,100) % 33 == 0:
-#             if self.movetime < self.alltime:
-#                 self.entity._valx -= 0.1
-#                 self.movetime += 1
-#                 self.entity.currentF += 1
-            self.entity._valx -= 0.1
-            self.entity.currentF += 1
-        self.movetime += 1
-        if self.movetime > self.xr * 0.05 and self.needjump:
+            self.entity._valx -= 2
+
+        if self.movetime > self.xr and self.needjump and self.entity.check_to_jump() and self.entity.jumping == False:
             self.entity.jump()
             self.needjump = False
+        self.entity.currentF += 1
+        self.movetime += 1
+        
 #        self.entity._valx = 0
 #        self.currenttime = self.movetime
+
     def calculate(self):
         self.entity.memory["toloc"] = [self.entity.target.rect.x,self.entity.target.rect.y]
         self.xr = abs(self.entity.rect.x - self.entity.memory["toloc"][0])
@@ -174,20 +151,22 @@ class followstate(state):
             self.needjump = True        
         
     def action(self):
+        self.calculate()
         self.move()
-        self.frameact()
+        self.entity.frame_act()
 #         if self.xr > 100 or self.yr > 100:
 #             self.entity.memory["toloc"] = []
-
-    
+   
     def checktochange(self):
-        if self.movetime > self.xr * 0.1:
-            return "shoot"
+        if self.alltime < self.movetime:
+            return "moveandseek"
         
     def enteraction(self):
         self.calculate()
     
     def exitaction(self):
+        self.movetime = 0
+        self.entity.jumping = False
         pass
 
 class turnstate(state):
@@ -207,6 +186,7 @@ class turnstate(state):
     def enteraction(self):
 #         self.entity.jump()
         self.pre = self.entity.goleft
+        self.entity.detective_set()
 #        self.entity.frame_set(0)
         
     def exitaction(self):
@@ -217,24 +197,24 @@ class shootstate(state):
         state.__init__(self, "shoot")
         self.entity = entity
 #        print "shoot init"
-    def framestop(self):
-        self.entity.currentF = 0
+
     def shoot(self):
         self.entity.bulletpool.add(self.entity.bullet)
 #         self.entity.frame_set(0)
     
     def action(self):
 #        self.entity.currentF -= 1
-        self.framestop()
+        self.entity.frame_stop()
         if randint(1,100) % 20 == 0:   
             self.shoot()
         
     def checktochange(self):
-        if self.entity.bulletpool.sprites() != []:
-            return "moveandseek"
+        if self.entity.check_to_shoot() == False:
+            return "follow"
         
     def enteraction(self):
-        self.framestop()
+        self.entity.memory["toloc"] = [self.entity.target.rect.x,self.entity.target.rect.y]
+        self.entity.frame_stop()
         pass
 #        if self.entity.bulletpool.sprites() == []:
 #            self.entity.frame_set(0)

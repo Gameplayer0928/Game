@@ -76,10 +76,6 @@ mlfile.close()
 
 
 
-# pg = pygame.sprite.Group()
-# pg.add(ab)
-
-
 mapcurrent = MapState(maplink,ab,scr)
 
 mapcurrent.mapNumber = 0                               
