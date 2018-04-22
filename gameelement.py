@@ -28,11 +28,8 @@ from gameconfig import *
 from random import randint
 import math
 import AI
-from win32inetcon import AUTO_PROXY_FLAG_DETECTION_RUN
 
-medimage = pygame.image.load(".\\medicine.png").convert_alpha()
-amimage = pygame.image.load(".\\ammo.png").convert_alpha()
-hitwave = pygame.image.load(".\\hitwavef1_f3.png").convert_alpha()
+# from netmachine import get_remes
 
 class Block(pygame.sprite.Sprite):
     def __init__(self,image):
@@ -77,12 +74,12 @@ class Item(pygame.sprite.Sprite):
                 self.rect.right = block.rect.left
                 
 class Medicine(Item):
-    def __init__(self,name = "medicine",image = medimage):
+    def __init__(self,name = "medicine",image = MEDIMAGE):
         Item.__init__(self, name, image)
         self.effect = {"life+":50}
 
 class Ammo(Item):
-    def __init__(self,name = "ammo",image = amimage):
+    def __init__(self,name = "ammo",image = AMIMAGE):
         Item.__init__(self, name, image)
         self.effect = {"ammo+":10}
         
@@ -121,6 +118,8 @@ class GameEntity(pygame.sprite.Sprite):
         self.meleedelay = 0
         self.meleelock = False
         
+        self.NETCOMMEND = None
+        
     def set_default_loc(self,fx,fy,goleft = False,pix=1):
         self.rect.x = fx
         self.rect.y = fy * pix
@@ -139,104 +138,167 @@ class GameEntity(pygame.sprite.Sprite):
     
     def update(self):
         keys = pygame.key.get_pressed()
-        
-        if keys[pygame.K_a]:
-            self._valx -= 1
-            self.goleft = True
-            if self.rect.x < 0:
-                self._valx = 0
-            
-        if keys[pygame.K_d]:
-            self._valx += 1
-            self.goleft = False
-            if self.rect.x > SCREEN_SIZE[0] - self.rect.width:
-                self._valx = 0
-        self._valx *= 0.8
-        
-        if keys[pygame.K_SPACE] and self.onfloor == True:
-            self._valy -= 11
-            self.onfloor = False
-        
-        self._valy += 0.5
-        
-        self.rect.move_ip((self._valx,self._valy))
-              
-        if keys[pygame.K_k] and self.status["ammo"] > 0:
-            self.shootdelay += 1
-            if self.shootdelay < 20:
-                if self.shootlock == False:
-                    self.shootlock = True
-                    bt = Bullet(self.rect.x,self.rect.y,self.goleft,self.bulletimage,25,8)
-                    self.bulletpool.add(bt)
-                    self.status["ammo"] -= 1
-            else:
-                self.shootlock = False
-                self.shootdelay = 0
-        else:
-            self.shootdelay = 0
-            self.shootlock = False
-        
+#         ncresult = None
+        global USENET
+        if USENET:
 
-        
-        if keys[pygame.K_l]:
-            self.meleedelay += 1
-            if self.meleedelay < 20:
-                if self.meleelock == False:
-                    self.meleelock = True
-                    self.frame_set(3)
-                    hw = HitWave(self.rect.x,self.rect.y,self.rect.width,self.goleft)
-                    self.bulletpool.add(hw)
+            ncresult = self.NETCOMMEND
+            
+            if ncresult == N_LEFT:
+                self._valx -= 1
+                self.goleft = True
+                if self.rect.x < 0:
+                    self._valx = 0
+                
+            if ncresult == N_RIGHT:
+                self._valx += 1
+                self.goleft = False
+                if self.rect.x > SCREEN_SIZE[0] - self.rect.width:
+                    self._valx = 0
+            self._valx *= 0.8
+            
+            if ncresult == N_JUMP and self.onfloor == True:
+                self._valy -= 11
+                self.onfloor = False
+            
+            self._valy += 0.5
+            
+            self.rect.move_ip((self._valx,self._valy))
+                  
+            if ncresult == N_SHOOT and self.status["ammo"] > 0  :
+                self.shootdelay += 1
+                if self.shootdelay < 20:
+                    if self.shootlock == False:
+                        self.shootlock = True
+                        bt = Bullet(self.rect.x,self.rect.y,self.goleft,self.bulletimage,25,8)
+                        self.bulletpool.add(bt)
+                        self.status["ammo"] -= 1
+                else:
+                    self.shootlock = False
+                    self.shootdelay = 0
+            else:
+                self.shootdelay = 0
+                self.shootlock = False
+            
+    
+            
+            if ncresult == N_MELEE:
+                self.meleedelay += 1
+                if self.meleedelay < 20:
+                    if self.meleelock == False:
+                        self.meleelock = True
+                        self.frame_set(3)
+                        hw = HITWAVEIMAGE(self.rect.x,self.rect.y,self.rect.width,self.goleft)
+                        self.bulletpool.add(hw)
+                else:
+                    self.meleelock = False
+                    self.meleedelay = 0
             else:
                 self.meleelock = False
                 self.meleedelay = 0
-        else:
-            self.meleelock = False
-            self.meleedelay = 0
-        
-        if keys[pygame.K_d] or keys[pygame.K_a]:
             
-            if self.currentF < self.allF - 1:
-                self.frame_set(self.currentF)
-            else:
-                self.currentF = 0
-                self.frame_set(self.currentF)
-            self.currentF += 1
-#         else:
-#             self.frame_set(0)
-        
-#        collideblockpool = []
-#        print "player " + str(self.currentF)
-        for block in self.mapblock:
-#             blockedgestorge={"top":0,"bottom":0,"left":0,"right":0}
-            if block.rect.colliderect(self.rect):
+            if ncresult == N_LEFT or ncresult == N_RIGHT:
                 
+                if self.currentF < self.allF - 1:
+                    self.frame_set(self.currentF)
+                else:
+                    self.currentF = 0
+                    self.frame_set(self.currentF)
+                self.currentF += 1
+                
+            self.NETCOMMEND = None
+            ncresult = None
+#             else:
+#                 pass
+     ###################################################################################
+     ############                      up use net, down dont use net     ###############
+     ###################################################################################   
+        else:
+            if keys[pygame.K_a]:
+                self._valx -= 1
+                self.goleft = True
+                if self.rect.x < 0:
+                    self._valx = 0
+                
+            if keys[pygame.K_d]:
+                self._valx += 1
+                self.goleft = False
+                if self.rect.x > SCREEN_SIZE[0] - self.rect.width:
+                    self._valx = 0
+            self._valx *= 0.8
+            
+            if keys[pygame.K_SPACE] and self.onfloor == True:
+                self._valy -= 11
+                self.onfloor = False
+            
+            self._valy += 0.5
+            
+            self.rect.move_ip((self._valx,self._valy))
+                  
+            if keys[pygame.K_k] and self.status["ammo"] > 0  :
+                self.shootdelay += 1
+                if self.shootdelay < 20:
+                    if self.shootlock == False:
+                        self.shootlock = True
+                        bt = Bullet(self.rect.x,self.rect.y,self.goleft,self.bulletimage,25,8)
+                        self.bulletpool.add(bt)
+                        self.status["ammo"] -= 1
+                else:
+                    self.shootlock = False
+                    self.shootdelay = 0
+            else:
+                self.shootdelay = 0
+                self.shootlock = False
+            
+    
+            
+            if keys[pygame.K_l]:
+                self.meleedelay += 1
+                if self.meleedelay < 20:
+                    if self.meleelock == False:
+                        self.meleelock = True
+                        self.frame_set(3)
+                        hw = HITWAVEIMAGE(self.rect.x,self.rect.y,self.rect.width,self.goleft)
+                        self.bulletpool.add(hw)
+                else:
+                    self.meleelock = False
+                    self.meleedelay = 0
+            else:
+                self.meleelock = False
+                self.meleedelay = 0
+            
+            if keys[pygame.K_d] or keys[pygame.K_a]:
+                
+                if self.currentF < self.allF - 1:
+                    self.frame_set(self.currentF)
+                else:
+                    self.currentF = 0
+                    self.frame_set(self.currentF)
+                self.currentF += 1
 
+        for block in self.mapblock:
+            if block.rect.colliderect(self.rect):
                     
                     top,bottom,left,right = collide_edge(self.rect,block.rect)
-#                     #      print (top,bottom,left,right)
                     if top:
                         self._valy = 0
                         self.rect.top = block.rect.bottom
-#                         #      print "top"
                     elif bottom:
                         self._valy = 0
                         self.rect.bottom = block.rect.top
                         self.onfloor = True
-#                         #      print "bottom"
                     elif right:
                         self._valx = 0
                         self.rect.right = block.rect.left
-#                         #      print "right"
                     elif left:
                         self._valx = 0
                         self.rect.left = block.rect.right
-#                         #      print "left"
                     else:
                         pass
 #                         #      print "============OPPS============="  
                     
 #         if self.rect.x < 0 or self.rect.x > SCREEN_SIZE[0] or self.rect.y < 0 or self.rect.y > SCREEN_SIZE[1]:
-        if self.status["life"] == 0:
+        if self.status["life"] < 0:
             self.kill()
 
 class LineRectCount(): #pygame.sprite.Sprite
@@ -514,8 +576,8 @@ class Bullet(pygame.sprite.Sprite):
         if self.rect.x < 0 or self.rect.x > SCREEN_SIZE[0] or self.rect.y < 0 or self.rect.y > SCREEN_SIZE[1]:
             self.kill()
 
-class HitWave(pygame.sprite.Sprite):
-    def __init__(self,xp,yp,width,shootD,image = hitwave,frameW = 20,frameH = 50,allF = 3):
+class HITWAVEIMAGE(pygame.sprite.Sprite):
+    def __init__(self,xp,yp,width,shootD,image = HITWAVEIMAGE,frameW = 20,frameH = 50,allF = 3):
         pygame.sprite.Sprite.__init__(self)
         self.main_image = image
         
@@ -540,7 +602,7 @@ class HitWave(pygame.sprite.Sprite):
             self.rect.x = self.xp + self.width
 
         self.rect.y = self.yp
-#         print "hitwave : ",self.shootD
+#         print "HITWAVEIMAGE : ",self.shootD
     
     def frame_set(self,s = 0):
         currentRect = pygame.Rect(self.frameW * s,0,self.frameW,self.frameH)

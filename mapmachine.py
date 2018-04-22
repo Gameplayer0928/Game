@@ -85,12 +85,12 @@ class MapState():
         self.mapfilelist = mapfilelist
         #      print len(self.mapfilelist)
         self.mapNumber = 0
-        self.mapfile = ".\\" + self.mapfilelist[self.mapNumber] + ".txt"
+        self.mapfile = PATHhead + self.mapfilelist[self.mapNumber] + Utxt +".txt"
         #      print self.mapfile
-        self.backeve = pygame.image.load(".\\back.jpg").convert()
-        self.blockimage = pygame.image.load(".\\block3.png").convert_alpha()
-        self.blockbackimage = pygame.image.load(".\\block4.png").convert_alpha()
-        self.dustfloorimage = pygame.image.load(".\\dust20_20.png").convert_alpha()
+        self.backeve = BACKEVE
+        self.blockimage = BLOCKIMAGE
+        self.blockbackimage = BLOCKBACKIMAGE
+        self.dustfloorimage = DUSTFLOORIMAGE
         
         
         self.mapls = readMap(self.mapfile, ["f"],SCREEN_SIZE[0]/20)
@@ -100,11 +100,6 @@ class MapState():
         
         self.mapLp = ChangeMapPoint(self.mapfile,'l',20)
         self.mapRp = ChangeMapPoint(self.mapfile,'r',20)
-        #      print self.mapLp.rect
-        #      print self.mapRp.rect
-#         self.mapevegroup = pygame.sprite.Group()
-#         self.mapevegroup.add(self.mapLp)
-#         self.mapevegroup.add(self.mapRp)
         
         self.inpoint = readMap(self.mapfile,"l",SCREEN_SIZE[0]/20)
         
@@ -128,10 +123,10 @@ class MapState():
         self.GE.set_default_loc(self.inpoint[0][0]+20,self.inpoint[0][1],False,19)
         
         self.mapboss = None
-        self.bossbulletimage = pygame.image.load(".\\ballb.png").convert_alpha()
+        self.bossbulletimage = BOSSBULLETIMAGE
         
         self.mapenemy = None
-        self.enemybulletimage = pygame.image.load(".\\ball3.png").convert_alpha()
+        self.enemybulletimage = ENEMYBULLETIMAGE
         self.enemygroup = pygame.sprite.Group()
         
         
@@ -142,7 +137,7 @@ class MapState():
         self.mapboss = readMap(self.mapfile, "b",SCREEN_SIZE[0]/20)
         if self.mapboss != []:
             loc = set_location(self.mapboss[0], 20, 20)            
-            bossimage = pygame.image.load(".\\dd200-600.png").convert_alpha()
+            bossimage = BOSSIMAGE
             boss = BossEntity(bossimage,200,200,3,self.bossbulletimage)
             boss.set_default_loc(loc[0],loc[1],False)
             self.enemygroup.add(boss)
@@ -156,7 +151,7 @@ class MapState():
             for i in self.mapenemy:
 #                #      print i
                 loc = set_location(i, 20, 20)            
-                enemyimage = pygame.image.load(".\\gang1f1_f3.png").convert_alpha()
+                enemyimage = ENEMYIMAGE
                 enemy = EnemyEntity(enemyimage,36,50,3,self.enemybulletimage)
                 enemy.set_default_loc(loc[0],loc[1],False)
                 enemy.mapblock = self.blockgroup
@@ -237,7 +232,7 @@ class MapState():
         if self.mapNumber > 0:
             self.GE.set_stop()
             self.mapNumber -= 1
-            self.mapfile = ".\\" + self.mapfilelist[self.mapNumber] + ".txt"
+            self.mapfile = PATHhead + self.mapfilelist[self.mapNumber] + Utxt +".txt"
             
             self.mapls = readMap(self.mapfile, ["f"],SCREEN_SIZE[0]/20)
             self.mapbls = readMap(self.mapfile, ["x","E"],SCREEN_SIZE[0]/20)
@@ -266,13 +261,12 @@ class MapState():
 #            #      print "change per map"
     
     def changenextmap(self):
-#        self.enemy_clean()
-#        oldrect = self.GE.rect.bottom
+
         if self.mapNumber < len(self.mapfilelist) - 1:
             self.GE.set_stop()
             self.mapNumber += 1
 #            #      print self.mapNumber
-            self.mapfile = ".\\" + self.mapfilelist[self.mapNumber] + ".txt"
+            self.mapfile = PATHhead + self.mapfilelist[self.mapNumber] + Utxt +".txt"
 
             self.mapls = readMap(self.mapfile, ["f"],SCREEN_SIZE[0]/20)
             self.mapbls = readMap(self.mapfile, ["x","E"],SCREEN_SIZE[0]/20)

@@ -128,7 +128,7 @@ class followstate(state):
     
     
     def move(self):
-        self.entity.memory["toloc"] = [self.entity.target.rect.x,self.entity.target.rect.y]
+        
         if self.entity.goleft == False:
             self.entity._valx += 2             
         else:

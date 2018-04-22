@@ -29,9 +29,11 @@ from mapmachine import *
 #from AI import *
 
 from gameelement import GameEntity
-import sys
+
+from netmachine import *
 
 
+    
 print """W S A D key to move\n
        SPACE key to jump\n
        K key to shoot\n
@@ -45,47 +47,32 @@ print """W S A D key to move\n
 pygame.display.set_caption(CAPTION)
 pygame.display.set_icon(ICON)
 
-
-
-background = pygame.surface.Surface(SCREEN_SIZE)
-
-playerimage = pygame.image.load(".\\playerf1_f4.png").convert_alpha()
-
-bulletimage = pygame.image.load(".\\ball2.png").convert_alpha()
-
-
-
-
-
-# ab.main_image = playerimageddddddddd
-
-ab = GameEntity(playerimage,36,50,4,bulletimage)
-
-# boss.set_default_loc(900, 300, False)
-
-# enemygroup = pygame.sprite.Group()
-# enemygroup.add(boss)
-# ab.set_default_loc(inpoint[0][0],inpoint[0][1],19)
+playerentity = GameEntity(PLAYERIMAGE,36,50,4,BULLETIMAGE)
 
 maplink = None
 
-mlfile = open('.\\maplink.txt',"r")
+mlfile = open(PATHhead+"maplink.txt","r")
 for i in mlfile:
     maplink = i.split(",")
 mlfile.close()
 
-
-
-mapcurrent = MapState(maplink,ab,scr)
+mapcurrent = MapState(maplink,playerentity,scr)
 
 mapcurrent.mapNumber = 0                               
-# ab.mapblock = blockgroup
 
 tabhold = False
 
+
+
 while True:
-#    absb = StateBoard(ab,scr)
     clock.tick(60)
+#     print(threading.active_count())
+    global USENET
+    if USENET:
+        command = t1.get_result()
+        if command == N_EXIT:
+            sys.exit()
+        playerentity.NETCOMMEND = command
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -99,11 +86,9 @@ while True:
             if event.key == pygame.K_TAB:
                 tabhold = False
      
-
     mapcurrent.running()
     
     if tabhold:
         mapcurrent.GEsb.show()
     
-    #background.blit(screen,(0,0))
     pygame.display.update()
